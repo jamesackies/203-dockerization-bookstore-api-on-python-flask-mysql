@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+
+  database:
+    image: mysql:8.0
+    container_name: bookstore-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Clarusway_1
+      MYSQL_DATABASE: bookstore_db
+      MYSQL_USER: clarusway
+      MYSQL_PASSWORD: Clarusway_1
+    networks:
+      - bookstore-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "clarusway", "-pClarusway_1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    build: .
+    container_name: bookstore-app
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - bookstore-net
+
+networks:
+  bookstore-net:
+    driver: bridge
